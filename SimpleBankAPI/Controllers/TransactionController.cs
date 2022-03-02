@@ -1,5 +1,6 @@
 ﻿using CrossCuttingConcerns.PagingSorting;
 using Logic.DataTransferObjects.BankAccount;
+using Logic.DataTransferObjects.Transaction;
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,12 +12,12 @@ namespace SimpleBankAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BankAccountController : ControllerBase
+    public class TransactionController : ControllerBase
     {
-        private readonly IBankAccountService _bankAccountService;
-        public BankAccountController(IBankAccountService bankAccountService)
+        private readonly ITransactionService _transactionService;
+        public TransactionController(ITransactionService transactionService)
         {
-            _bankAccountService = bankAccountService;
+            _transactionService = transactionService;
         }
 
         [AllowAnonymous]
@@ -25,7 +26,7 @@ namespace SimpleBankAPI.Controllers
         {
             try
             {
-                var bankAccount = await _bankAccountService
+                var bankAccount = await _transactionService
                     .GetById(id)
                     .ConfigureAwait(false);
 
@@ -45,7 +46,7 @@ namespace SimpleBankAPI.Controllers
             try
             {
                 var bankAccounts =
-                    await _bankAccountService
+                    await _transactionService
                     .GetAll()
                     .ConfigureAwait(false);
 
@@ -58,41 +59,18 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-
-        [AllowAnonymous]
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] CreateBankAccountDto createBankAccountDto)
-        {
-            try
-            {
-                var newBankAccount =
-                    await _bankAccountService
-                        .Create(createBankAccountDto)
-                        .ConfigureAwait(false);
-
-                return Ok(newBankAccount);
-
-            }
-            catch (Exception ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-
         [AllowAnonymous]
         [HttpPut("Update")]
-        public async Task<IActionResult> Update([FromBody] BankAccountDto updateBankAccountDto)
+        public async Task<IActionResult> Update([FromBody] TransactionDto updateBankAccountDto)
         {
             try
             {
-                var bankToUpdate = await _bankAccountService.Update(updateBankAccountDto).ConfigureAwait(true);
+                var bankToUpdate = await _transactionService.Update(updateBankAccountDto).ConfigureAwait(true);
                 if (bankToUpdate != null)
                 {
                     return Ok(bankToUpdate);
                 }
-                return BadRequest("Bank account doesn't exist in the database.");
+                return BadRequest("Transaction doesn't exist in the database.");
 
             }
             catch (Exception ex)
@@ -109,14 +87,14 @@ namespace SimpleBankAPI.Controllers
         {
             try
             {
-                var bank = await _bankAccountService.GetById(id).ConfigureAwait(false);
+                var bank = await _transactionService.GetById(id).ConfigureAwait(false);
 
                 if (bank == null)
                 {
                     return BadRequest("Bank account doesn't exist in the database.");
                 }
-                await _bankAccountService.Delete(id).ConfigureAwait(true);
-                return Ok("Bank account has been deleted");
+                await _transactionService.Delete(id).ConfigureAwait(true);
+                return Ok("Transaction has been deleted");
             }
             catch (Exception ex)
             {
@@ -126,15 +104,13 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-
         [AllowAnonymous]
         [HttpGet("GetPagedList")]
-        public async Task<ActionResult<PaginatedList<ShortBankAccountDto>>> Get(
+        public async Task<ActionResult<PaginatedList<TransactionDto>>> Get(
             int? pageNumber, string sortField, string sortOrder,
             int? pageSize)
         {
-            
-                var list = await _bankAccountService.GetPagedList(pageNumber, sortField, sortOrder, pageSize);
+            var list = await _transactionService.GetPagedList(pageNumber, sortField, sortOrder, pageSize);
             return list;
         }
     }

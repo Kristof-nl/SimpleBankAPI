@@ -10,81 +10,46 @@ using System.Threading.Tasks;
 
 namespace Data.Repository
 {
-    public interface IBankAccountRepository
+    public interface ITransactionRepository
     {
-        IQueryable<BankAccount> GetAll();
+        IQueryable<Transaction> GetAll();
 
-        //Task<PaginatedList<BankAccount>> GetSortList(
-        //   int? pageNumber,
-        //   string sortField,
-        //   string sortOrder,
-        //   int? pageSize);
+        Task<PaginatedList<Transaction>> GetSortList(
+           int? pageNumber,
+           string sortField,
+           string sortOrder,
+           int? pageSize);
 
-        Task<BankAccount> GetById(int id);
-        Task<BankAccount> Create(BankAccount entity);
-        Task Update(BankAccount entity);
+        Task<Transaction> GetById(int id);
+        Task Update(Transaction entity);
         Task Delete(int id);
 
 
     }
 
-    public class BankAccountRepository : GenericRepository<BankAccount>, IBankAccountRepository
+    public class TransactionRepository : GenericRepository<Transaction>, ITransactionRepository
     {
         private readonly MainDbContext _mainDbContext;
 
-        public BankAccountRepository(MainDbContext mainDbContext) : base(mainDbContext)
+        public TransactionRepository(MainDbContext mainDbContext) : base(mainDbContext)
         {
             _mainDbContext = mainDbContext;
         }
 
         private const int PageSize = 10;
 
-        public override async Task<BankAccount> GetById(int id)
+        public override async Task<Transaction> GetById(int id)
         {
             return await GetAll()
-                .Include(t => t.Transactions)
+                .Include(b => b.BankAccount)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id)
                 .ConfigureAwait(false);
         }
 
 
-        //Create
-        public async Task<BankAccount> Create(BankAccount entity)
-        {
-            //Make random account number
-            Random rnd = new();
-            int first = rnd.Next(0000, 9999);
-            int second = rnd.Next(0000, 9999);
-            int third = rnd.Next(0000, 9999);
-
-            entity.AccountNumber = $"0012 {first} 1678 {second} 8764 {third}";
-
-            
-
-            //Create transaction and add it to bank account
-            Transaction transaction = new()
-            {
-                Name = $"Account creation {DateTime.Now.ToShortTimeString()}",
-                TransactionDate = DateTime.Now,
-                Ammount = entity.AccountBalance,
-                AmmountBefore = entity.AccountBalance,
-                AammountAfter = entity.AccountBalance,
-                BankAccount = entity,
-            };
-
-            await _mainDbContext.Transactions.AddAsync(transaction);
-
-            
-            
-            await _mainDbContext.SaveChangesAsync();
-            
-            return entity;
-        }
-
-
         //Update
-        public override async Task<BankAccount> Update(BankAccount entity)
+        public override async Task<Transaction> Update(Transaction entity)
         {
             _mainDbContext.Update(entity);
             await _mainDbContext.SaveChangesAsync();
@@ -95,27 +60,25 @@ namespace Data.Repository
         //Delete
         public override async Task Delete(int id)
         {
-            var accountToDelete = await _mainDbContext.BankAccounts.FirstOrDefaultAsync(p => p.Id == id);
+            var accountToDelete = await _mainDbContext.Transactions.Include(t => t.BankAccount).FirstOrDefaultAsync(p => p.Id == id);
 
-            _mainDbContext.BankAccounts.Remove(accountToDelete);
+            _mainDbContext.Transactions.Remove(accountToDelete);
             await _mainDbContext.SaveChangesAsync();
         }
 
-        
 
-        //public async Task<PaginatedList<BankAccount>> GetSortList(
-        //  int? pageNumber,
-        //  string sortField,
-        //  string sortOrder,
-        //  int? pageSize)
-        //{
-        //    IQueryable<BankAccount> query = _mainDbContext.BankAccounts
-        //        .Include(p => p.Transactions)
-        //        .Include(p => p.Customer)
-        //        .Include(x => x.Bank);
 
-        //    return await PaginatedList<BankAccount>
-        //       .CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize ?? PageSize, sortField ?? "Id", sortOrder ?? "ASC");
-        //}
+        public async Task<PaginatedList<Transaction>> GetSortList(
+          int? pageNumber,
+          string sortField,
+          string sortOrder,
+          int? pageSize)
+        {
+            IQueryable<Transaction> query = _mainDbContext.Transactions
+                .Include(b => b.BankAccount);
+               
+            return await PaginatedList<Transaction>
+               .CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize ?? PageSize, sortField ?? "Id", sortOrder ?? "ASC");
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace Logic.DataTransferObjects.Transaction
 {
     public class TransactionDto
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public DateTime TransactionDate { get; set; }
         public string From { get; set; }

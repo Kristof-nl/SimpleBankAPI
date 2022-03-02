@@ -17,6 +17,8 @@ namespace Logic.AutoMapper
             CreateMap<BankAccount, BankAccountDto>().ReverseMap();
             CreateMap<BankAccount, CreateBankAccountDto>().ReverseMap();
             CreateMap<CreateBankAccountDto, BankAccountDto>().ReverseMap();
+            CreateMap<ShortBankAccountDto, BankAccountDto>().ReverseMap();
+            CreateMap<BankAccount, ShortBankAccountDto>().ReverseMap();
         }
     }
 }

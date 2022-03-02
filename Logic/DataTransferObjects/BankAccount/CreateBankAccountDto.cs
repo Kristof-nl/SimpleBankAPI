@@ -8,7 +8,6 @@ namespace Logic.DataTransferObjects.BankAccount
 {
     public class CreateBankAccountDto
     {
-        public string AccountNumber { get; set; }
         public DateTime CreationDate { get; set; }
         public double AccountBalance { get; set; }
     }

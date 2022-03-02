@@ -1,5 +1,7 @@
 using Data;
+using Data.Repository;
 using Logic.AutoMapper;
+using Logic.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -39,6 +41,15 @@ namespace SimpleBankAPI
             //AddDbContext
             var cs = Configuration.GetConnectionString("Default");
             services.AddDbContext<MainDbContext>(options => { options.UseSqlServer(cs); });
+
+            // Services
+            services.AddScoped<IBankAccountService, BankAccountService>();
+            services.AddScoped<ITransactionService, TransactionService>();
+
+            // Repositories
+            
+            services.AddScoped<IBankAccountRepository, BankAccountRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
 
             // AutoMapper configuration
             services.AddAutoMapper(typeof(AutoMapperBankAccount).Assembly);

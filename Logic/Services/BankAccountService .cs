@@ -16,13 +16,14 @@ namespace Logic.Services
     public interface IBankAccountService
     {
         Task<BankAccountDto> GetById(int bankId);
-        Task<List<BankAccountDto>> GetAll();
+        Task<List<ShortBankAccountDto>> GetAll();
         Task<BankAccountDto> Create(CreateBankAccountDto createUpdateBankDto);
         Task<BankAccountDto> Update(BankAccountDto updateBankAccountDto);
         Task Delete(int id);
-        //Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
-        //int? pageNumber, string sortField, string sortOrder,
-        //int? pageSize);
+
+        Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
+        int? pageNumber, string sortField, string sortOrder,
+        int? pageSize);
     }
 
 
@@ -83,37 +84,39 @@ namespace Logic.Services
             await _bankAccountRepository.Delete(id);
         }
 
-        public Task<List<BankAccountDto>> GetAll()
+        public async Task<List<ShortBankAccountDto>> GetAll()
         {
-            throw new NotImplementedException();
+
+            var allBanksFromDb = await _bankAccountRepository.GetAll().ToListAsync().ConfigureAwait(false);
+
+            return _mapper.Map<List<BankAccount>, List<ShortBankAccountDto>>(allBanksFromDb);
         }
 
 
-        //  public async Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
-        //int? pageNumber, string sortField, string sortOrder,
-        //int? pageSize)
-        //  {
-        //      PaginatedList<BankAccount> result =
-        //          await _bankAccountRepository.GetSortList(pageNumber, sortField, sortOrder, pageSize);
-        //      return new PaginatedList<ShortBankAccountDto>
-        //      {
-        //          CurrentPage = result.CurrentPage,
-        //          From = result.From,
-        //          PageSize = result.PageSize,
-        //          To = result.To,
-        //          TotalCount = result.TotalCount,
-        //          TotalPages = result.TotalPages,
-        //          Items = result.Items.Select(ua => new ShortBankAccountDto
-        //          {
-        //              Id = ua.Id,
-        //              Type = ua.Type,
-        //              AccountBalance = ua.AccountBalance,
-        //              AccountNumber = ua.AccountNumber,
-        //              Customer = _mapper.Map<ShortCustomerDto>(ua.Customer),
-        //              Bank = _mapper.Map<ShortBankDto>(ua.Bank),
-        //          }).ToList()
-        //      };
-        //  }
+        public async Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
+      int? pageNumber, string sortField, string sortOrder,
+      int? pageSize)
+        {
+            PaginatedList<BankAccount> result =
+                await _bankAccountRepository.GetSortList(pageNumber, sortField, sortOrder, pageSize);
+            return new PaginatedList<ShortBankAccountDto>
+            {
+                CurrentPage = result.CurrentPage,
+                From = result.From,
+                PageSize = result.PageSize,
+                To = result.To,
+                TotalCount = result.TotalCount,
+                TotalPages = result.TotalPages,
+                Items = result.Items.Select(ua => new ShortBankAccountDto
+                {
+                    Id = ua.Id,
+                    CreationDate = ua.CreationDate,
+                    AccountNumber = ua.AccountNumber,
+                    AccountBalance = ua.AccountBalance,
+
+                }).ToList()
+            };
+        }
     }
 
 }
