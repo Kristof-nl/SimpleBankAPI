@@ -24,8 +24,6 @@ namespace Data.Repository
         Task Update(Transaction entity);
         Task Delete(int id);
 
-        Task<Transaction> BankTransfer(BankAccount bankAccountFrom, string accountNumber, double amount);
-
 
     }
 
@@ -83,57 +81,7 @@ namespace Data.Repository
                .CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize ?? PageSize, sortField ?? "Id", sortOrder ?? "ASC");
         }
 
-        public async Task<Transaction> BankTransfer(BankAccount bankAccountFrom, string accountNumber, double amount)
-        {
-            var bankAccountTo = await _mainDbContext.BankAccounts.Include(t => t.Transactions).AsNoTracking().FirstOrDefaultAsync(p => p.AccountNumber == accountNumber);
-            bankAccountTo.AccountBalance += amount;
-            bankAccountFrom.AccountBalance -= amount;
-
-            //bankAccountTo.Transactions.Add(new()
-            //{
-            //    Name = $"Transfer to bank account {bankAccountTo.AccountNumber}",
-            //    TransactionDate = DateTime.Now,
-            //    Ammount = amount,
-            //    From = bankAccountFrom.AccountNumber,
-            //    To = bankAccountTo.AccountNumber,
-            //    AammountAfter = bankAccountFrom.AccountBalance - amount,
-            //    AmmountBefore = bankAccountFrom.AccountBalance,
-            //});
-
-            Transaction transactionFrom = new()
-            {
-                Name = $"Transfer to bank account {bankAccountTo.AccountNumber}",
-                TransactionDate = DateTime.Now,
-                Ammount = amount,
-                From = bankAccountFrom.AccountNumber,
-                To = bankAccountTo.AccountNumber,
-                AammountAfter = bankAccountFrom.AccountBalance - amount,
-                AmmountBefore = bankAccountFrom.AccountBalance,
-                //BankAccount = bankAccountFrom
-
-            };
-
-            Transaction transactionTo = new()
-            {
-                Name = $"Transfer from bank account {bankAccountFrom.AccountNumber}",
-                Ammount = amount,
-                TransactionDate = DateTime.Now,
-                From = bankAccountFrom.AccountNumber,
-                To = bankAccountTo.AccountNumber,
-                AammountAfter = bankAccountTo.AccountBalance += amount,
-                AmmountBefore = bankAccountTo.AccountBalance,
-                //BankAccount = bankAccountTo
-
-            };
-
-
-            _mainDbContext.Transactions.Add(transactionFrom);
-            _mainDbContext.Add(transactionTo);
-
-            _mainDbContext.SaveChanges();
-
-            return null;
-        }
+        
 
         //public async Task<PaginatedList<BankAccount>> Filter(BankAccountFilter filter, int? pageNumber, string sortField, string sortOrder,
         //   int? pageSize)

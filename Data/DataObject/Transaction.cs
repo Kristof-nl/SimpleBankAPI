@@ -15,10 +15,9 @@ namespace Data.DataObjects
         public DateTime TransactionDate { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public double Ammount { get; set; }
-        public double AmmountBefore { get; set; }
-        public double AammountAfter { get; set; }
+        public double TransactionAmount { get; set; }
+        public double AmountBefore { get; set; }
+        public double AmountAfter { get; set; }
         public BankAccount BankAccount { get; set; }
-
     }
 }

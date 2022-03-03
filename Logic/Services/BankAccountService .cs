@@ -22,7 +22,7 @@ namespace Logic.Services
         Task<BankAccountDto> Create(CreateBankAccountDto createUpdateBankDto);
         Task<BankAccountDto> Update(BankAccountDto updateBankAccountDto);
         Task Delete(int id);
-        Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount);
+        Task BankTransfer(int accountId, string accountNumber, double amount);
         Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
         int? pageNumber, string sortField, string sortOrder,
         int? pageSize);
@@ -97,7 +97,7 @@ namespace Logic.Services
             return _mapper.Map<List<BankAccount>, List<ShortBankAccountDto>>(allBanksFromDb);
         }
 
-        public async Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount)
+        public async Task BankTransfer(int accountId, string accountNumber, double amount)
         {
             var bankAccountFromDb = await _bankAccountRepository.GetById(accountId).ConfigureAwait(false);
 
@@ -106,9 +106,7 @@ namespace Logic.Services
                 throw new NotFoundException("Bank account not found");
             }
 
-            var newTransaction = _bankAccountRepository.BankTransfer(bankAccountFromDb, accountNumber, amount);
-
-            return _mapper.Map<TransactionDto>(newTransaction);
+            await _bankAccountRepository.BankTransfer(bankAccountFromDb, accountNumber, amount);
         }
 
 

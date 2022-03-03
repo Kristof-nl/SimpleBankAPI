@@ -26,11 +26,11 @@ namespace SimpleBankAPI.Controllers
         {
             try
             {
-                var bankAccount = await _transactionService
+                var transaction = await _transactionService
                     .GetById(id)
                     .ConfigureAwait(false);
 
-                return Ok(bankAccount);
+                return Ok(transaction);
             }
             catch (Exception ex)
             {
@@ -114,24 +114,6 @@ namespace SimpleBankAPI.Controllers
             {
                 var list = await _transactionService.GetPagedList(pageNumber, sortField, sortOrder, pageSize);
                 return list;
-            }
-            catch (Exception ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-
-
-        [AllowAnonymous]
-        [HttpPost("Transfer")]
-        public async Task<ActionResult> BankTransfer(int accountId, string accountNumber, double amount)
-        {
-            try
-            {
-                var newTransaction = await _transactionService.BankTransfer(accountId, accountNumber, amount);
-                return Ok(newTransaction);
             }
             catch (Exception ex)
             {

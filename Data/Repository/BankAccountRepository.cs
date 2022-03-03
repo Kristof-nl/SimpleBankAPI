@@ -25,7 +25,7 @@ namespace Data.Repository
         Task<BankAccount> Create(BankAccount entity);
         Task Update(BankAccount entity);
         Task Delete(int id);
-        Task<Transaction> BankTransfer(BankAccount bankAccountFrom, string accountNumber, double amount);
+        Task BankTransfer(BankAccount bankAccountFrom, string accountNumber, double amount);
 
         Task<PaginatedList<BankAccount>> Filter(BankAccountFilter filter, int? pageNumber, string sortField, string sortOrder,
            int? pageSize);
@@ -59,11 +59,11 @@ namespace Data.Repository
         {
             //Make random account number
             Random rnd = new();
-            string first = rnd.Next(0000, 9999).ToString();
-            string second = rnd.Next(0000, 9999).ToString();
-            string third = rnd.Next(0000, 9999).ToString();
+            int first = rnd.Next(1000, 9999);
+            int second = rnd.Next(1000, 9999);
+            int third = rnd.Next(1000, 9999);
 
-            entity.AccountNumber = $"0012 {first} 1678 {second} 8764 {third}";
+            entity.AccountNumber = $"0012 {first} 0078 {second} 0000 {third}";
 
             
 
@@ -72,9 +72,9 @@ namespace Data.Repository
             {
                 Name = "Account creation",
                 TransactionDate = DateTime.Now,
-                Ammount = entity.AccountBalance,
-                AmmountBefore = 0,
-                AammountAfter = entity.AccountBalance,
+                TransactionAmount = entity.AccountBalance,
+                AmountBefore = 0,
+                AmountAfter = entity.AccountBalance,
                 BankAccount = entity,
             };
 
@@ -167,59 +167,45 @@ namespace Data.Repository
 
         }
 
-        public async Task<Transaction> BankTransfer(BankAccount bankAccountFrom, string accountNumber, double amount)
+        public async Task BankTransfer(BankAccount bankAccountFrom, string accountNumber, double amount)
         {
             var bankAccountTo = await _mainDbContext.BankAccounts.Include(t => t.Transactions).AsNoTracking().FirstOrDefaultAsync(p => p.AccountNumber == accountNumber);
-            bankAccountTo.AccountBalance += amount;
-            bankAccountFrom.AccountBalance -= amount;
-
-            //bankAccountTo.Transactions.Add(new()
-            //{
-            //    Name = $"Transfer to bank account {bankAccountTo.AccountNumber}",
-            //    TransactionDate = DateTime.Now,
-            //    Ammount = amount,
-            //    From = bankAccountFrom.AccountNumber,
-            //    To = bankAccountTo.AccountNumber,
-            //    AammountAfter = bankAccountFrom.AccountBalance - amount,
-            //    AmmountBefore = bankAccountFrom.AccountBalance,
-            //});
-
+            
             Transaction transactionFrom = new()
             {
                 Name = $"Transfer to bank account {bankAccountTo.AccountNumber}",
                 TransactionDate = DateTime.Now,
-                Ammount = amount,
+                TransactionAmount = amount,
                 From = bankAccountFrom.AccountNumber,
                 To = bankAccountTo.AccountNumber,
-                AammountAfter = bankAccountFrom.AccountBalance - amount,
-                AmmountBefore = bankAccountFrom.AccountBalance,
-                //BankAccount = bankAccountFrom
-
+                AmountAfter = bankAccountFrom.AccountBalance - amount,
+                AmountBefore = bankAccountFrom.AccountBalance,
             };
 
             Transaction transactionTo = new()
             {
                 Name = $"Transfer from bank account {bankAccountFrom.AccountNumber}",
-                Ammount = amount,
+                TransactionAmount = amount,
                 TransactionDate = DateTime.Now,
                 From = bankAccountFrom.AccountNumber,
                 To = bankAccountTo.AccountNumber,
-                AammountAfter = bankAccountTo.AccountBalance += amount,
-                AmmountBefore = bankAccountTo.AccountBalance,
+                AmountAfter = bankAccountTo.AccountBalance += amount,
+                AmountBefore = bankAccountTo.AccountBalance,
                 //BankAccount = bankAccountTo
 
             };
-            
+            //bankAccountFrom.Transactions.Add(transactionFrom);
+            bankAccountTo.AccountBalance += amount;
+            bankAccountFrom.AccountBalance -= amount;
 
-            _mainDbContext.Add(transactionFrom);
-            _mainDbContext.Add(transactionTo);
-
-            bankAccountTo.Transactions.Add(transactionFrom);
-            bankAccountTo.Transactions.Add(transactionTo);
+            await _mainDbContext.Transactions.AddAsync(transactionFrom);
+            await _mainDbContext.Transactions.AddAsync(transactionTo);
+            //_mainDbContext.Add(transactionTo);
+            transactionFrom.BankAccount = bankAccountFrom;
+            transactionTo.BankAccount = bankAccountTo;
 
             await _mainDbContext.SaveChangesAsync();
 
-            return transactionFrom;
         }
     }
 }

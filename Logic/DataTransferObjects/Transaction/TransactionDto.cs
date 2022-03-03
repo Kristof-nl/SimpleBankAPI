@@ -14,7 +14,7 @@ namespace Logic.DataTransferObjects.Transaction
         public DateTime TransactionDate { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public double Ammount { get; set; }
+        public double TransactionAmount { get; set; }
         public double AmountBefore { get; set; }
         public double AmountAfter { get; set; }
         BankAccountDto BankAccount { get; set; }

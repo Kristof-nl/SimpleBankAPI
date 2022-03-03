@@ -133,8 +133,8 @@ namespace SimpleBankAPI.Controllers
         {
             try
             {
-                var newTransaction = await _bankAccountService.BankTransfer(accountId, accountNumber, amount);
-                return Ok(newTransaction);
+                await _bankAccountService.BankTransfer(accountId, accountNumber, amount);
+                return Ok("Made");
             }
             catch (Exception ex)
             {

@@ -25,25 +25,21 @@ namespace Logic.Services
         int? pageNumber, string sortField, string sortOrder,
         int? pageSize);
 
-
-        Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount);
     }
 
 
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository _transactionRepository;
-        private readonly IBankAccountRepository _bankAccountRepository;
         private readonly IMapper _mapper;
 
         public TransactionService(
             ITransactionRepository transactionRepository,
-            IMapper mapper,
-            IBankAccountRepository bankAccountRepository)
+            IMapper mapper)
+     
 
         {
             _transactionRepository = transactionRepository;
-            _bankAccountRepository = bankAccountRepository;
             _mapper = mapper;
         }
 
@@ -57,7 +53,7 @@ namespace Logic.Services
                 throw new NotFoundException("Bank Account not found");
             }
 
-            return _mapper.Map<Transaction, TransactionDto>(bankAccountFromDb);
+            return _mapper.Map<TransactionDto>(bankAccountFromDb);
         }
 
 
@@ -109,9 +105,9 @@ namespace Logic.Services
                     Id = ua.Id,
                     Name = ua.Name,
                     TransactionDate = ua.TransactionDate,
-                    Ammount = ua.Ammount,
-                    AmountBefore = ua.AmmountBefore,
-                    AmountAfter = ua.AammountAfter,
+                    TransactionAmount = ua.TransactionAmount,
+                    AmountBefore = ua.AmountBefore,
+                    AmountAfter = ua.AmountAfter,
                     From = ua.From,
                     To = ua.To
 
@@ -120,19 +116,6 @@ namespace Logic.Services
         }
 
 
-        public async Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount)
-        {
-            var bankAccountFromDb = await _bankAccountRepository.GetById(accountId).ConfigureAwait(false);
-
-            if (bankAccountFromDb == null)
-            {
-                throw new NotFoundException("Bank account not found");
-            }
-
-            var newTransaction = _transactionRepository.BankTransfer(bankAccountFromDb, accountNumber, amount);
-
-            return _mapper.Map<TransactionDto>(newTransaction);
-        }
     }
 
 }
