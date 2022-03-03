@@ -23,11 +23,12 @@ namespace Logic.Services
         Task<BankAccountDto> Update(BankAccountDto updateBankAccountDto);
         Task Delete(int id);
         Task BankTransfer(int accountId, string accountNumber, double amount);
+        Task Withdraw(int accountId, double amount);
         Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
         int? pageNumber, string sortField, string sortOrder,
         int? pageSize);
 
-        Task<PaginatedList<ShortBankAccountDto>> Filter(BankAccountFilter profileFilterDto, int? pageNumber, string sortField, string sortOrder,
+        Task<PaginatedList<ShortBankAccountDto>> Filter(BankAccountFilter filterDto, int? pageNumber, string sortField, string sortOrder,
           int? pageSize);
     }
 
@@ -106,7 +107,29 @@ namespace Logic.Services
                 throw new NotFoundException("Bank account not found");
             }
 
+            if (bankAccountFromDb.AccountBalance < amount)
+            {
+                throw new NotFoundException("Transfer isn't possible. Transfer amount is bigger than the account balance");
+            }
+
             await _bankAccountRepository.BankTransfer(bankAccountFromDb, accountNumber, amount);
+        }
+
+        public async Task Withdraw(int accountId, double amount)
+        {
+            var bankAccountFromDb = await _bankAccountRepository.GetById(accountId).ConfigureAwait(false);
+
+            if (bankAccountFromDb == null)
+            {
+                throw new NotFoundException("Bank account not found");
+            }
+
+            if (bankAccountFromDb.AccountBalance < amount)
+            {
+                throw new NotFoundException("Withdraw isn't possible. Withdraw amount is bigger than the account balance");
+            }
+
+            await _bankAccountRepository.Withdraw(bankAccountFromDb, amount);
         }
 
 
@@ -136,11 +159,11 @@ namespace Logic.Services
             };
         }
 
-        public async Task<PaginatedList<ShortBankAccountDto>> Filter(BankAccountFilter profileFilterDto, int? pageNumber, string sortField, string sortOrder,
+        public async Task<PaginatedList<ShortBankAccountDto>> Filter(BankAccountFilter filterDto, int? pageNumber, string sortField, string sortOrder,
           int? pageSize)
         {
             PaginatedList<BankAccount> result =
-                await _bankAccountRepository.Filter(profileFilterDto, pageNumber, sortField, sortOrder, pageSize);
+                await _bankAccountRepository.Filter(filterDto, pageNumber, sortField, sortOrder, pageSize);
             return new PaginatedList<ShortBankAccountDto>
             {
                 CurrentPage = result.CurrentPage,

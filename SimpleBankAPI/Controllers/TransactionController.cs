@@ -1,4 +1,5 @@
-﻿using CrossCuttingConcerns.PagingSorting;
+﻿using CrossCuttingConcern.Filters;
+using CrossCuttingConcerns.PagingSorting;
 using Logic.DataTransferObjects.BankAccount;
 using Logic.DataTransferObjects.Transaction;
 using Logic.Services;
@@ -114,6 +115,29 @@ namespace SimpleBankAPI.Controllers
             {
                 var list = await _transactionService.GetPagedList(pageNumber, sortField, sortOrder, pageSize);
                 return list;
+            }
+            catch (Exception ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Filter")]
+        public async Task<ActionResult<PaginatedList<TransactionDto>>> Filter([FromBody] TransactionFilter filterDto, int? pageNumber, string sortField, string sortOrder,
+            int? pageSize)
+        {
+            try
+            {
+                var query = await _transactionService.Filter(filterDto, pageNumber, sortField, sortOrder, pageSize).ConfigureAwait(false);
+
+                if (query.Items.Count < 1)
+                {
+                    return BadRequest("Any results in the database");
+                }
+                return query;
+
             }
             catch (Exception ex)
             {

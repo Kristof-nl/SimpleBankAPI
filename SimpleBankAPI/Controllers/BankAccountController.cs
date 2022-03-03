@@ -134,7 +134,23 @@ namespace SimpleBankAPI.Controllers
             try
             {
                 await _bankAccountService.BankTransfer(accountId, accountNumber, amount);
-                return Ok("Made");
+                return Ok("Transfer succesful");
+            }
+            catch (Exception ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Withdraw")]
+        public async Task<ActionResult> Withdraw(int accountId, double amount)
+        {
+            try
+            {
+                await _bankAccountService.Withdraw(accountId, amount);
+                return Ok("Withdraw succesful");
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CrossCuttingConcern.Filters;
 using CrossCuttingConcerns.PagingSorting;
 using Data.DataObjects;
 using Data.Repository;
@@ -24,7 +25,8 @@ namespace Logic.Services
         Task<PaginatedList<TransactionDto>> GetPagedList(
         int? pageNumber, string sortField, string sortOrder,
         int? pageSize);
-
+        Task<PaginatedList<TransactionDto>> Filter(TransactionFilter filterDto, int? pageNumber, string sortField, string sortOrder,
+          int? pageSize);
     }
 
 
@@ -104,6 +106,34 @@ namespace Logic.Services
                 {
                     Id = ua.Id,
                     Name = ua.Name,
+                    TransactionDate = ua.TransactionDate,
+                    TransactionAmount = ua.TransactionAmount,
+                    AmountBefore = ua.AmountBefore,
+                    AmountAfter = ua.AmountAfter,
+                    From = ua.From,
+                    To = ua.To
+
+                }).ToList()
+            };
+        }
+
+        public async Task<PaginatedList<TransactionDto>> Filter(TransactionFilter filterDto, int? pageNumber, string sortField, string sortOrder,
+          int? pageSize)
+        {
+            PaginatedList<Transaction> result =
+                await _transactionRepository.Filter(filterDto, pageNumber, sortField, sortOrder, pageSize);
+            return new PaginatedList<TransactionDto>
+            {
+                CurrentPage = result.CurrentPage,
+                From = result.From,
+                PageSize = result.PageSize,
+                To = result.To,
+                TotalCount = result.TotalCount,
+                TotalPages = result.TotalPages,
+                Items = result.Items.Select(ua => new TransactionDto
+                {
+                    Id = ua.Id,
+                    Name= ua.Name,
                     TransactionDate = ua.TransactionDate,
                     TransactionAmount = ua.TransactionAmount,
                     AmountBefore = ua.AmountBefore,

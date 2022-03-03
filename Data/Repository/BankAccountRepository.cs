@@ -30,6 +30,8 @@ namespace Data.Repository
         Task<PaginatedList<BankAccount>> Filter(BankAccountFilter filter, int? pageNumber, string sortField, string sortOrder,
            int? pageSize);
 
+        Task Withdraw(BankAccount bankAccountFrom, double amount);
+
 
     }
 
@@ -128,9 +130,6 @@ namespace Data.Repository
             IQueryable<BankAccount> query = _mainDbContext.BankAccounts
                 .Include(a => a.Transactions);
 
-
-        
-
             //Account balance
             if (filter.AccountBalanceFrom != null && filter.AccountBalanceTo == null)
             {
@@ -191,18 +190,46 @@ namespace Data.Repository
                 To = bankAccountTo.AccountNumber,
                 AmountAfter = bankAccountTo.AccountBalance += amount,
                 AmountBefore = bankAccountTo.AccountBalance,
-                //BankAccount = bankAccountTo
 
             };
-            //bankAccountFrom.Transactions.Add(transactionFrom);
+            
             bankAccountTo.AccountBalance += amount;
             bankAccountFrom.AccountBalance -= amount;
 
             await _mainDbContext.Transactions.AddAsync(transactionFrom);
             await _mainDbContext.Transactions.AddAsync(transactionTo);
-            //_mainDbContext.Add(transactionTo);
+ 
             transactionFrom.BankAccount = bankAccountFrom;
             transactionTo.BankAccount = bankAccountTo;
+
+            await _mainDbContext.SaveChangesAsync();
+
+        }
+
+
+        public async Task Withdraw(BankAccount bankAccount, double amount)
+        {
+            Random rnd = new();
+            int atmNumber = rnd.Next(0000, 9999);
+
+            Transaction transaction = new()
+            {
+                Name = $"Withdraw from ATM {atmNumber}",
+                TransactionDate = DateTime.Now,
+                TransactionAmount = amount,
+                From = bankAccount.AccountNumber,
+                To = $"ATM {atmNumber}",
+                AmountAfter = bankAccount.AccountBalance - amount,
+                AmountBefore = bankAccount.AccountBalance,
+            };
+
+            bankAccount.AccountBalance -= amount;
+
+            await _mainDbContext.Transactions.AddAsync(transaction);
+
+
+            transaction.BankAccount = bankAccount;
+            
 
             await _mainDbContext.SaveChangesAsync();
 

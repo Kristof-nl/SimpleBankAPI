@@ -1,4 +1,5 @@
-﻿using CrossCuttingConcerns.Generics;
+﻿using CrossCuttingConcern.Filters;
+using CrossCuttingConcerns.Generics;
 using CrossCuttingConcerns.PagingSorting;
 using Data.DataObjects;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,8 @@ namespace Data.Repository
         Task<Transaction> GetById(int id);
         Task Update(Transaction entity);
         Task Delete(int id);
-
+        Task<PaginatedList<Transaction>> Filter(TransactionFilter filter, int? pageNumber, string sortField, string sortOrder,
+           int? pageSize);
 
     }
 
@@ -81,67 +83,57 @@ namespace Data.Repository
                .CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize ?? PageSize, sortField ?? "Id", sortOrder ?? "ASC");
         }
 
-        
-
-        //public async Task<PaginatedList<BankAccount>> Filter(BankAccountFilter filter, int? pageNumber, string sortField, string sortOrder,
-        //   int? pageSize)
-        //{
-        //    IQueryable<BankAccount> query = _mainDbContext.BankAccounts
-        //        .Include(a => a.Transactions);
 
 
-        //    //Country
+        public async Task<PaginatedList<Transaction>> Filter(TransactionFilter filter, int? pageNumber, string sortField, string sortOrder,
+           int? pageSize)
+        {
+            IQueryable<Transaction> query = _mainDbContext.Transactions
+                .Include(a => a.BankAccount);
 
+            //Transaction amount
+            if (filter.AmountFrom!= null && filter.AmountTo == null)
+            {
+                filter.AmountTo = 10000000000000000000;
+            }
+            if (filter.AmountFrom == null && filter.AmountTo != null)
+            {
+                filter.AmountFrom = -1000000000000000000;
+            }
+            if (filter.AmountFrom != null && filter.AmountTo != null)
+            {
+                query = query.Distinct().Where(e => e.TransactionAmount >= filter.AmountFrom);
+                query = query.Distinct().Where(e => e.TransactionAmount <= filter.AmountTo);
+            }
 
-        //    //Account balance
-        //    if (filter.AccountBalanceFrom != null && filter.AccountBalanceTo != null)
-        //    {
-        //        query = query.Distinct().Where(e => e.BankAccounts.Any(x => x.AccountBalance >= filter.AccountBalanceFrom));
-        //        query = query.Distinct().Where(e => e.BankAccounts.Any(x => x.AccountBalance <= filter.AccountBalanceTo));
-        //    }
+            //Transaction time
+            if (filter.TransactionDateFrom != null && filter.TransactionDateTo == null)
+            {
+                filter.TransactionDateTo = DateTime.Now;
+            }
+            if (filter.TransactionDateFrom == null && filter.TransactionDateTo != null)
+            {
+                filter.TransactionDateFrom = new DateTime(2000, 01, 01);
+            }
+            if (filter.TransactionDateFrom != null && filter.TransactionDateTo != null)
+            {
+                query = query.Distinct().Where(e => e.TransactionDate >= filter.TransactionDateFrom);
+                query = query.Distinct().Where(e => e.TransactionDate <= filter.TransactionDateTo);
+            }
 
-        //    //Account creation time
-        //    if (filter.CreationDateFrom != null && filter.CreationDateTo == null)
-        //    {
-        //        filter.CreationDateTo = DateTime.Now;
-        //    }
-        //    if (filter.CreationDateFrom == null && filter.CreationDateTo != null)
-        //    {
-        //        filter.CreationDateTo = DateTime.Today.AddYears(-10);
-        //    }
-        //    if (filter.CreationDateFrom != null && filter.CreationDateTo != null)
-        //    {
-        //        query = query.Distinct().Where(e => e.BankAccounts.Any(x => x.CreationDate >= filter.CreationDateFrom));
-        //        query = query.Distinct().Where(e => e.BankAccounts.Any(x => x.CreationDate <= filter.CreationDateTo));
-        //    }
+            //Transaction type
+            if (filter.Type != null)
+            {
+                query = query.Distinct().Where(e => e.Name.Contains(filter.Type));
+                
+            }
+           
 
-        //    //Age between
+            return await PaginatedList<Transaction>
+              .CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize ?? PageSize, sortField ?? "Id", sortOrder ?? "ASC");
 
-        //    if (filter.AgeFrom != null && filter.AgeTo == null)
-        //    {
-        //        filter.AgeTo = 100;
-        //    }
-        //    if (filter.AgeFrom == null && filter.AgeTo != null)
-        //    {
-        //        filter.AgeFrom = 0;
-        //    }
-        //    if (filter.AgeFrom != null && filter.AgeTo != null)
-        //    {
-        //        var minusAgeTo = filter.AgeTo * -1;
-        //        var minusAgeFrom = filter.AgeFrom * -1;
+        }
 
-        //        var ageTo = DateTime.Now.AddYears((int)minusAgeTo);
-        //        var ageFrom = DateTime.Now.AddYears((int)minusAgeFrom);
-
-        //        query = query.Where(e => e.DateOfBirth >= ageTo);
-        //        query = query.Where(e => e.DateOfBirth <= ageFrom);
-        //    }
-
-        //    return await PaginatedList<Customer>
-        //      .CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize ?? PageSize, sortField ?? "Id", sortOrder ?? "ASC");
-        //}
     }
-
-
 
 }
