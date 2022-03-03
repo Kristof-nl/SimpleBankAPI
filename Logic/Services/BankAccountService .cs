@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using CrossCuttingConcern.Filters;
 using CrossCuttingConcerns.PagingSorting;
 using Data.DataObjects;
 using Data.Repository;
 using Logic.DataTransferObjects.BankAccount;
+using Logic.DataTransferObjects.Transaction;
 using Logic.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,10 +22,13 @@ namespace Logic.Services
         Task<BankAccountDto> Create(CreateBankAccountDto createUpdateBankDto);
         Task<BankAccountDto> Update(BankAccountDto updateBankAccountDto);
         Task Delete(int id);
-
+        Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount);
         Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
         int? pageNumber, string sortField, string sortOrder,
         int? pageSize);
+
+        Task<PaginatedList<ShortBankAccountDto>> Filter(BankAccountFilter profileFilterDto, int? pageNumber, string sortField, string sortOrder,
+          int? pageSize);
     }
 
 
@@ -92,6 +97,21 @@ namespace Logic.Services
             return _mapper.Map<List<BankAccount>, List<ShortBankAccountDto>>(allBanksFromDb);
         }
 
+        public async Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount)
+        {
+            var bankAccountFromDb = await _bankAccountRepository.GetById(accountId).ConfigureAwait(false);
+
+            if (bankAccountFromDb == null)
+            {
+                throw new NotFoundException("Bank account not found");
+            }
+
+            var newTransaction = _bankAccountRepository.BankTransfer(bankAccountFromDb, accountNumber, amount);
+
+            return _mapper.Map<TransactionDto>(newTransaction);
+        }
+
+
 
         public async Task<PaginatedList<ShortBankAccountDto>> GetPagedList(
       int? pageNumber, string sortField, string sortOrder,
@@ -114,6 +134,30 @@ namespace Logic.Services
                     AccountNumber = ua.AccountNumber,
                     AccountBalance = ua.AccountBalance,
 
+                }).ToList()
+            };
+        }
+
+        public async Task<PaginatedList<ShortBankAccountDto>> Filter(BankAccountFilter profileFilterDto, int? pageNumber, string sortField, string sortOrder,
+          int? pageSize)
+        {
+            PaginatedList<BankAccount> result =
+                await _bankAccountRepository.Filter(profileFilterDto, pageNumber, sortField, sortOrder, pageSize);
+            return new PaginatedList<ShortBankAccountDto>
+            {
+                CurrentPage = result.CurrentPage,
+                From = result.From,
+                PageSize = result.PageSize,
+                To = result.To,
+                TotalCount = result.TotalCount,
+                TotalPages = result.TotalPages,
+                Items = result.Items.Select(ua => new ShortBankAccountDto
+                {
+                    Id = ua.Id,
+                    AccountNumber = ua.AccountNumber,
+                    CreationDate = ua.CreationDate,
+                    AccountBalance = ua.AccountBalance,
+                  
                 }).ToList()
             };
         }

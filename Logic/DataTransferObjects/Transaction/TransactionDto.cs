@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Logic.DataTransferObjects.BankAccount;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,8 @@ namespace Logic.DataTransferObjects.Transaction
         public string From { get; set; }
         public string To { get; set; }
         public double Ammount { get; set; }
-        public double AmmountBefore { get; set; }
-        public double AammountAfter { get; set; }
+        public double AmountBefore { get; set; }
+        public double AmountAfter { get; set; }
+        BankAccountDto BankAccount { get; set; }
     }
 }

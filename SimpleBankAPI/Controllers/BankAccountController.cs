@@ -1,5 +1,7 @@
-﻿using CrossCuttingConcerns.PagingSorting;
+﻿using CrossCuttingConcern.Filters;
+using CrossCuttingConcerns.PagingSorting;
 using Logic.DataTransferObjects.BankAccount;
+using Logic.DataTransferObjects.Transaction;
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -125,6 +127,22 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost("Transfer")]
+        public async Task<ActionResult> BankTransfer(int accountId, string accountNumber, double amount)
+        {
+            try
+            {
+                var newTransaction = await _bankAccountService.BankTransfer(accountId, accountNumber, amount);
+                return Ok(newTransaction);
+            }
+            catch (Exception ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
 
 
         [AllowAnonymous]
@@ -133,9 +151,41 @@ namespace SimpleBankAPI.Controllers
             int? pageNumber, string sortField, string sortOrder,
             int? pageSize)
         {
-            
+            try
+            {
                 var list = await _bankAccountService.GetPagedList(pageNumber, sortField, sortOrder, pageSize);
-            return list;
+                return list;
+            }
+            catch (Exception ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("Filter")]
+        public async Task<ActionResult<PaginatedList<ShortBankAccountDto>>> Filter([FromBody] BankAccountFilter filterDto, int? pageNumber, string sortField, string sortOrder,
+            int? pageSize)
+        {
+            try
+            {
+                var query = await _bankAccountService.Filter(filterDto, pageNumber, sortField, sortOrder, pageSize).ConfigureAwait(false);
+
+                if (query == null)
+                {
+                    return BadRequest("Any results in the database");
+                }
+                return query;
+
+            }
+            catch (Exception ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

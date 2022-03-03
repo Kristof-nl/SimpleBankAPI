@@ -52,8 +52,11 @@ namespace SimpleBankAPI
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
             // AutoMapper configuration
-            services.AddAutoMapper(typeof(AutoMapperBankAccount).Assembly);
-            services.AddAutoMapper(typeof(AutoMapperTransaction).Assembly);
+            services.AddAutoMapper(typeof(AutoMapperBankAccount).Assembly, typeof(AutoMapperTransaction).Assembly);
+
+            services.AddControllersWithViews()
+            .AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

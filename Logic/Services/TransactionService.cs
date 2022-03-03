@@ -24,20 +24,26 @@ namespace Logic.Services
         Task<PaginatedList<TransactionDto>> GetPagedList(
         int? pageNumber, string sortField, string sortOrder,
         int? pageSize);
+
+
+        Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount);
     }
 
 
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository _transactionRepository;
+        private readonly IBankAccountRepository _bankAccountRepository;
         private readonly IMapper _mapper;
 
         public TransactionService(
             ITransactionRepository transactionRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IBankAccountRepository bankAccountRepository)
 
         {
             _transactionRepository = transactionRepository;
+            _bankAccountRepository = bankAccountRepository;
             _mapper = mapper;
         }
 
@@ -104,13 +110,28 @@ namespace Logic.Services
                     Name = ua.Name,
                     TransactionDate = ua.TransactionDate,
                     Ammount = ua.Ammount,
-                    AmmountBefore = ua.AmmountBefore,
-                    AammountAfter = ua.AammountAfter,
+                    AmountBefore = ua.AmmountBefore,
+                    AmountAfter = ua.AammountAfter,
                     From = ua.From,
                     To = ua.To
 
                 }).ToList()
             };
+        }
+
+
+        public async Task<TransactionDto> BankTransfer(int accountId, string accountNumber, double amount)
+        {
+            var bankAccountFromDb = await _bankAccountRepository.GetById(accountId).ConfigureAwait(false);
+
+            if (bankAccountFromDb == null)
+            {
+                throw new NotFoundException("Bank account not found");
+            }
+
+            var newTransaction = _transactionRepository.BankTransfer(bankAccountFromDb, accountNumber, amount);
+
+            return _mapper.Map<TransactionDto>(newTransaction);
         }
     }
 
