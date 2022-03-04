@@ -17,6 +17,5 @@ namespace Logic.DataTransferObjects.Transaction
         public double TransactionAmount { get; set; }
         public double AmountBefore { get; set; }
         public double AmountAfter { get; set; }
-        BankAccountDto BankAccount { get; set; }
     }
 }

@@ -57,7 +57,7 @@ namespace Data.Repository
 
 
         //Create
-        public async Task<BankAccount> Create(BankAccount entity)
+        public override async Task<BankAccount> Create(BankAccount entity)
         {
             //Make random account number
             Random rnd = new();
