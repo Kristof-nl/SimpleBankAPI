@@ -16,27 +16,28 @@ namespace HotelListing.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApiUser> _userManager;
-        private readonly SignInManager<ApiUser> _signInManager;
         private readonly IMapper _mapper;
         //private readonly IAuthManager _authManager;
 
-        public AccountController(UserManager<ApiUser> userManager, SignInManager<ApiUser> signInManager, IMapper mapper
+        public AccountController(UserManager<ApiUser> userManager, IMapper mapper
             /*IAuthManager authManager*/)
         {
             _userManager = userManager;
             _mapper = mapper;
             //_authManager = authManager;
-            _signInManager = signInManager;
         }
 
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] UserDto userDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             try
             {
-
                 var user = _mapper.Map<ApiUser>(userDto);
                 user.UserName = userDto.Email;
                 var result = await _userManager.CreateAsync(user, userDto.Password);
@@ -64,16 +65,25 @@ namespace HotelListing.Controllers
         //[Route("login")]
         //public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
         //{
-            
+
+
         //    try
         //    {
-        //        if (!await _authManager.ValidateUser(userDto))
+        //        //if (!await _authManager.ValidateUser(userDto))
+        //        //{
+        //        //    return Unauthorized();
+        //        //}
+
+        //        //return Accepted(new { Token = await _authManager.CreateToken() });
+
+        //        var result = await _signInManager.PasswordSignInAsync(userDto.Email, userDto.Password, false, false);
+
+        //        if(!result.Succeeded)
         //        {
-        //            return Unauthorized();
+        //            return Unauthorized(userDto);
         //        }
 
-        //        return Accepted(new { Token = await _authManager.CreateToken() });
-
+        //        return Accepted(userDto);
         //    }
         //    catch (Exception ex)
         //    {

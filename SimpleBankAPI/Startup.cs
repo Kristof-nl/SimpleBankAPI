@@ -48,6 +48,7 @@ namespace SimpleBankAPI
             // Services
             services.AddScoped<IBankAccountService, BankAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IAuthManagerService, AuthManagerService>();
 
             // Repositories
 
@@ -65,6 +66,7 @@ namespace SimpleBankAPI
             //Identity and authentication
             services.AddAuthentication();
             services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
 
         }
 

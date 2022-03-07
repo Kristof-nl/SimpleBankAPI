@@ -10,6 +10,7 @@ namespace Logic.AutoMapper
         public AutoMapperUser()
         {
             CreateMap<ApiUser, UserDto>().ReverseMap();
+            CreateMap<ApiUser, LoginUserDto>().ReverseMap();
         }
         
     }
