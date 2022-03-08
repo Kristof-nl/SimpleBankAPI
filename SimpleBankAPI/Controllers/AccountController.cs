@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Data.DataObjects;
 using Logic.DataTransferObjects.User;
+using Logic.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,14 @@ namespace HotelListing.Controllers
     {
         private readonly UserManager<ApiUser> _userManager;
         private readonly IMapper _mapper;
-        //private readonly IAuthManager _authManager;
+        private readonly IAuthManagerService _authManager;
 
-        public AccountController(UserManager<ApiUser> userManager, IMapper mapper
-            /*IAuthManager authManager*/)
+        public AccountController(UserManager<ApiUser> userManager, IMapper mapper,
+            IAuthManagerService authManager)
         {
             _userManager = userManager;
             _mapper = mapper;
-            //_authManager = authManager;
+            _authManager = authManager;
         }
 
         [HttpPost]
@@ -61,36 +62,34 @@ namespace HotelListing.Controllers
 
         }
 
-        //[HttpPost]
-        //[Route("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
-        //{
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
+        {
+            try
+            {
+                if (!await _authManager.ValidateUser(userDto))
+                {
+                    return Unauthorized();
+                }
 
+                return Accepted(new { Token = await _authManager.CreateToken() });
 
-        //    try
-        //    {
-        //        //if (!await _authManager.ValidateUser(userDto))
-        //        //{
-        //        //    return Unauthorized();
-        //        //}
+                //var result = await _signInManager.PasswordSignInAsync(userDto.Email, userDto.Password, false, false);
 
-        //        //return Accepted(new { Token = await _authManager.CreateToken() });
+                //if (!result.Succeeded)
+                //{
+                //    return Unauthorized(userDto);
+                //}
 
-        //        var result = await _signInManager.PasswordSignInAsync(userDto.Email, userDto.Password, false, false);
+                //return Accepted(userDto);
+            }
+            catch (Exception ex)
+            {
 
-        //        if(!result.Succeeded)
-        //        {
-        //            return Unauthorized(userDto);
-        //        }
-
-        //        return Accepted(userDto);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Problem($"Something went wrong in the {nameof(Login)}", statusCode: 500);
-        //    }
-        //}
+                return Problem($"Something went wrong in the {nameof(Login)}", statusCode: 500);
+            }
+        }
 
     }
 }

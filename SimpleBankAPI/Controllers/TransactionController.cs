@@ -21,7 +21,7 @@ namespace SimpleBankAPI.Controllers
             _transactionService = transactionService;
         }
 
-        [AllowAnonymous]
+        
         [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -40,7 +40,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -60,7 +60,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromBody] TransactionDto updateBankAccountDto)
         {
@@ -82,7 +82,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        [AllowAnonymous]
+        
         [HttpDelete("Delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -105,7 +105,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        [AllowAnonymous]
+        
         [HttpGet("GetPagedList")]
         public async Task<ActionResult<PaginatedList<TransactionDto>>> Get(
             int? pageNumber, string sortField, string sortOrder,
@@ -123,7 +123,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         [HttpPost("Filter")]
         public async Task<ActionResult<PaginatedList<TransactionDto>>> Filter([FromBody] TransactionFilter filterDto, int? pageNumber, string sortField, string sortOrder,
             int? pageSize)

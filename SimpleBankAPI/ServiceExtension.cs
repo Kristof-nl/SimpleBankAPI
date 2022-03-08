@@ -23,7 +23,7 @@ namespace SimpleBankAPI
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration Configuration)
         {
             var jwtSettings = Configuration.GetSection("Jwt");
-            var key = Environment.GetEnvironmentVariable("KEY");
+            var key = Environment.GetEnvironmentVariable("KEY2");
 
             services.AddAuthentication(o =>
             {
@@ -35,7 +35,7 @@ namespace SimpleBankAPI
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
                     //Because of issue with token reading ValidateIssuer is false
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,

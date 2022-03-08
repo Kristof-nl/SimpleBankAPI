@@ -48,14 +48,14 @@ namespace Logic.Services
             var jwtSettings = _configuration.GetSection("Jwt");
             var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings.GetSection("lifetime").Value));
 
-            var options = new JwtSecurityToken(
+            var token = new JwtSecurityToken(
                 issuer: jwtSettings.GetSection("validIssuer").Value,
                 claims: claims,
                 expires: expiration,
                 signingCredentials: signingCredentials
                 );
 
-            return options;
+            return token;
         }
 
         private async Task<List<Claim>> GetClaims()
@@ -77,7 +77,7 @@ namespace Logic.Services
 
         private SigningCredentials GetSigningCredentials()
         {
-            var key = Environment.GetEnvironmentVariable("KEY");
+            var key = Environment.GetEnvironmentVariable("KEY2");
             var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);

@@ -21,7 +21,7 @@ namespace SimpleBankAPI.Controllers
             _bankAccountService = bankAccountService;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "User")]
         [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -40,7 +40,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -61,7 +61,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        [AllowAnonymous]
+        
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] CreateBankAccountDto createBankAccountDto)
         {
@@ -83,7 +83,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        [AllowAnonymous]
+        
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromBody] BankAccountDto updateBankAccountDto)
         {
@@ -105,7 +105,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        [AllowAnonymous]
+        
         [HttpDelete("Delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -127,7 +127,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         [HttpPost("Transfer")]
         public async Task<ActionResult> BankTransfer(int accountId, string accountNumber, double amount)
         {
@@ -143,7 +143,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        
         [HttpPost("Withdraw")]
         public async Task<ActionResult> Withdraw(int accountId, double amount)
         {
@@ -161,7 +161,7 @@ namespace SimpleBankAPI.Controllers
 
 
 
-        [AllowAnonymous]
+        
         [HttpGet("GetPagedList")]
         public async Task<ActionResult<PaginatedList<ShortBankAccountDto>>> Get(
             int? pageNumber, string sortField, string sortOrder,
@@ -181,7 +181,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        [AllowAnonymous]
+        
         [HttpPost("Filter")]
         public async Task<ActionResult<PaginatedList<ShortBankAccountDto>>> Filter([FromBody] BankAccountFilter filterDto, int? pageNumber, string sortField, string sortOrder,
             int? pageSize)
