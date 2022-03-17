@@ -53,7 +53,7 @@ namespace HotelListing.Controllers
                 }
 
                 await _userManager.AddToRolesAsync(user, userDto.Roles);
-                return Accepted();
+                return Ok("Account created");
             }
             catch (Exception ex)
             {
@@ -74,15 +74,6 @@ namespace HotelListing.Controllers
                 }
 
                 return Accepted(new { Token = await _authManager.CreateToken() });
-
-                //var result = await _signInManager.PasswordSignInAsync(userDto.Email, userDto.Password, false, false);
-
-                //if (!result.Succeeded)
-                //{
-                //    return Unauthorized(userDto);
-                //}
-
-                //return Accepted(userDto);
             }
             catch (Exception ex)
             {

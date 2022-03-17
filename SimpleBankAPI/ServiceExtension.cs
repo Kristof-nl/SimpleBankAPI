@@ -34,8 +34,7 @@ namespace SimpleBankAPI
             {
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
-                    //Because of issue with token reading ValidateIssuer is false
-                    ValidateIssuer = false,
+                    ValidateIssuer = true,
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,

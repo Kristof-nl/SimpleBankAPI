@@ -21,7 +21,7 @@ namespace SimpleBankAPI.Controllers
             _bankAccountService = bankAccountService;
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Administrator")]
         [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -61,7 +61,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        
+        [Authorize(Roles = "User, Administrator")]
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] CreateBankAccountDto createBankAccountDto)
         {
@@ -83,7 +83,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        
+        [Authorize(Roles = "Administrator")]
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromBody] BankAccountDto updateBankAccountDto)
         {
@@ -105,7 +105,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("Delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -127,7 +127,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        
+        [Authorize(Roles = "User")]
         [HttpPost("Transfer")]
         public async Task<ActionResult> BankTransfer(int accountId, string accountNumber, double amount)
         {
@@ -143,7 +143,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        
+        [Authorize(Roles = "User")]
         [HttpPost("Withdraw")]
         public async Task<ActionResult> Withdraw(int accountId, double amount)
         {

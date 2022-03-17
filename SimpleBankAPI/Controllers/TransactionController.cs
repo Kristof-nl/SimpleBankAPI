@@ -21,7 +21,7 @@ namespace SimpleBankAPI.Controllers
             _transactionService = transactionService;
         }
 
-        
+        [Authorize(Roles = "User, Administrator")]
         [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -60,7 +60,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        
+        [Authorize(Roles = "Administrator")]
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromBody] TransactionDto updateBankAccountDto)
         {
@@ -82,7 +82,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        
+        [Authorize(Roles = "Administrator")]
         [HttpDelete("Delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
