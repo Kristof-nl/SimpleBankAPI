@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Data.Repository
@@ -188,12 +187,12 @@ namespace Data.Repository
                 TransactionDate = DateTime.Now,
                 From = bankAccountFrom.AccountNumber,
                 To = bankAccountTo.AccountNumber,
-                AmountAfter = bankAccountTo.AccountBalance += amount,
+                AmountAfter = bankAccountTo.AccountBalance + amount,
                 AmountBefore = bankAccountTo.AccountBalance,
 
             };
             
-            bankAccountTo.AccountBalance += amount;
+                bankAccountTo.AccountBalance += amount;
             bankAccountFrom.AccountBalance -= amount;
 
             await _mainDbContext.Transactions.AddAsync(transactionFrom);

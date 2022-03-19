@@ -1,10 +1,8 @@
 ﻿using CrossCuttingConcern.Filters;
 using CrossCuttingConcerns.PagingSorting;
 using Logic.DataTransferObjects.BankAccount;
-using Logic.DataTransferObjects.Transaction;
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -40,7 +38,7 @@ namespace SimpleBankAPI.Controllers
             }
         }
 
-        
+
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -161,7 +159,7 @@ namespace SimpleBankAPI.Controllers
 
 
 
-        
+
         [HttpGet("GetPagedList")]
         public async Task<ActionResult<PaginatedList<ShortBankAccountDto>>> Get(
             int? pageNumber, string sortField, string sortOrder,
@@ -181,7 +179,7 @@ namespace SimpleBankAPI.Controllers
         }
 
 
-        
+
         [HttpPost("Filter")]
         public async Task<ActionResult<PaginatedList<ShortBankAccountDto>>> Filter([FromBody] BankAccountFilter filterDto, int? pageNumber, string sortField, string sortOrder,
             int? pageSize)

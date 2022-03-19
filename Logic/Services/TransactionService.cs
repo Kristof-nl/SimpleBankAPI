@@ -3,14 +3,11 @@ using CrossCuttingConcern.Filters;
 using CrossCuttingConcerns.PagingSorting;
 using Data.DataObjects;
 using Data.Repository;
-using Logic.DataTransferObjects.BankAccount;
 using Logic.DataTransferObjects.Transaction;
 using Logic.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Logic.Services
@@ -38,7 +35,7 @@ namespace Logic.Services
         public TransactionService(
             ITransactionRepository transactionRepository,
             IMapper mapper)
-     
+
 
         {
             _transactionRepository = transactionRepository;
@@ -133,7 +130,7 @@ namespace Logic.Services
                 Items = result.Items.Select(ua => new TransactionDto
                 {
                     Id = ua.Id,
-                    Name= ua.Name,
+                    Name = ua.Name,
                     TransactionDate = ua.TransactionDate,
                     TransactionAmount = ua.TransactionAmount,
                     AmountBefore = ua.AmountBefore,
