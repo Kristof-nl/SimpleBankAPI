@@ -1,10 +1,8 @@
 ﻿using CrossCuttingConcern.Filters;
 using CrossCuttingConcerns.PagingSorting;
-using Logic.DataTransferObjects.BankAccount;
 using Logic.DataTransferObjects.Transaction;
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
