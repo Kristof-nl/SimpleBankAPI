@@ -4,7 +4,7 @@ Project made in .Net 5
 
 Live demo: https://simplebankapiswegger.azurewebsites.net/index.html
 
-Project with authentication and authorization. Without login user can only see some actions:
+Project with authentication and authorization. Without login user can only see some actions:  
 /api/BankAccount/GetAll  
 /api/BankAccount/GetPagedList  
 /api/BankAccount/Filter  
@@ -12,7 +12,7 @@ Project with authentication and authorization. Without login user can only see s
 /api/Transaction/GetPagedList  
 /api/Transaction/Filter
 
-After successfully login user get access to few more actions:
+After successfully login user get access to few more actions:  
 /api/BankAccount/GetById/{id}  
 /api/BankAccount/Transfer  
 /api/Transaction/GetById/{id}  
