@@ -2,6 +2,8 @@
 
 Project made in .Net 5
 
+To register please write in the field "roles": ["User"]
+
 Live demo: https://simplebankapiswegger.azurewebsites.net/index.html
 
 Project with authentication and authorization. Without login user can only see some actions:  
